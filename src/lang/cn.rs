@@ -5,7 +5,7 @@ lazy_static::lazy_static! {
             ("Your Desktop", "你的桌面"),
             ("desk_tip", "你的桌面可以通过下面的 ID 和密码访问。"),
             ("Password", "密码"),
-            ("Ready", "OK"),
+            ("Ready", "云端匹配完成(端到端加密已启用)"),
             ("Established", "已建立"),
             ("connecting_status", "正在接入云端控制..."),
             ("Enable service", "允许服务"),
