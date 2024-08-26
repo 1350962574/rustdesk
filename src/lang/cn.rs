@@ -630,7 +630,7 @@ lazy_static::lazy_static! {
             ("cancel-2fa-confirm-tip", "确定要取消双重认证吗？"),
             ("cancel-bot-confirm-tip", "确定要取消 Telegram 机器人吗？"),
             ("About RustDesk", "关于 RustDesk"),
-            ("Send clipboard keystrokes", "发送剪贴板按键"),
+            ("Send clipboard keystrokes", "发送Ctrl V"),
             ("network_error_tip", "请检查网络连接，然后点击再试"),
             ("Unlock with PIN", "使用 PIN 锁定"),
             ("Requires at least {} characters", "不少于{}个字符"),
