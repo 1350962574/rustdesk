@@ -1196,15 +1196,12 @@ impl<T: InvokeUiSession> Remote<T> {
                             }
 
                             #[cfg(not(any(target_os = "android", target_os = "ios")))]
-                            if let Some(msg_out) = crate::clipboard::get_current_clipboard_msg(
-                                &peer_version,
-                                &peer_platform,
-                                crate::clipboard::ClipboardSide::Client,
-                            ) {
-                                if crate::get_builtin_option(
-                                    config::keys::OPTION_ENABLE_CLIPBOARD_INIT_SYNC,
-                                ) != "N"
-                                {
+                            if self.handler.lc.read().unwrap().sync_init_clipboard.v {
+                                if let Some(msg_out) = crate::clipboard::get_current_clipboard_msg(
+                                    &peer_version,
+                                    &peer_platform,
+                                    crate::clipboard::ClipboardSide::Client,
+                                ) {
                                     let sender = self.sender.clone();
                                     let permission_config = self.handler.get_permission_config();
                                     tokio::spawn(async move {
@@ -1895,7 +1892,7 @@ impl<T: InvokeUiSession> Remote<T> {
             return;
         };
 
-        let is_stopping_allowed = clip.is_stopping_allowed_from_peer();
+        let is_stopping_allowed = clip.is_beginning_message();
         let file_transfer_enabled = self.handler.lc.read().unwrap().enable_file_copy_paste.v;
         let stop = is_stopping_allowed && !file_transfer_enabled;
         log::debug!(
