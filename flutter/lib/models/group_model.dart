@@ -23,14 +23,7 @@ class GroupModel {
 
   bool get emtpy => users.isEmpty && peers.isEmpty;
 
-  late final Peers peersModel;
-
-  GroupModel(this.parent) {
-    peersModel = Peers(
-        name: PeersModelName.group,
-        getInitPeers: () => peers,
-        loadEvent: LoadEvent.group);
-  }
+  GroupModel(this.parent);
 
   Future<void> pull({force = true, quiet = false}) async {
     if (bind.isDisableGroupPanel()) return;

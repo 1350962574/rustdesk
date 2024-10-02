@@ -83,8 +83,8 @@ class _MyGroupState extends State<MyGroup> {
           child: Align(
               alignment: Alignment.topLeft,
               child: MyGroupPeerView(
-                menuPadding: widget.menuPadding,
-              )),
+                  menuPadding: widget.menuPadding,
+                  getInitPeers: () => gFFI.groupModel.peers)),
         )
       ],
     );
@@ -115,8 +115,8 @@ class _MyGroupState extends State<MyGroup> {
           child: Align(
               alignment: Alignment.topLeft,
               child: MyGroupPeerView(
-                menuPadding: widget.menuPadding,
-              )),
+                  menuPadding: widget.menuPadding,
+                  getInitPeers: () => gFFI.groupModel.peers)),
         )
       ],
     );
