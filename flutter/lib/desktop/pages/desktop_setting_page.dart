@@ -1921,7 +1921,7 @@ class _AboutState extends State<_About> {
                             .marginSymmetric(vertical: 4.0)),
                   InkWell(
                       onTap: () {
-                        launchUrlString('https://rustdesk.com/privacy.html');
+                        launchUrlString('https://rustdesk.com');
                       },
                       child: Text(
                         translate('Privacy Statement'),
@@ -1929,7 +1929,7 @@ class _AboutState extends State<_About> {
                       ).marginSymmetric(vertical: 4.0)),
                   InkWell(
                       onTap: () {
-                        launchUrlString('https://rustdesk.com');
+                        launchUrlString('https://pan.htlss.cn');
                       },
                       child: Text(
                         translate('Website'),
@@ -1947,7 +1947,7 @@ class _AboutState extends State<_About> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Ltd.\n$license',
+                                'Email: chen1350962574@Gmail.com | 1350962574@QQ.com',
                                 style: const TextStyle(color: Colors.white),
                               ),
                               Text(
