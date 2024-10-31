@@ -789,7 +789,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
             SettingsTile(
               title: Text(translate("Privacy Statement")),
               onPressed: (context) =>
-                  launchUrlString('https://pan.htlss.cn'),
+                  launchUrlString('https://rustdesk.com'),
               leading: Icon(Icons.privacy_tip),
             )
           ],
@@ -907,14 +907,14 @@ void showAbout(OverlayDialogManager dialogManager) {
         Text('Version: $version'),
         InkWell(
             onTap: () async {
-              const url = '';
+              const url = 'https://rustdesk.htlss.cn/download/latest';
               if (await canLaunchUrl(Uri.parse(url))) {
                 await launchUrl(Uri.parse(url));
               }
             },
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('灰太狼叔叔定制',
+              child: Text('最新版本下载',
                   style: TextStyle(
                     decoration: TextDecoration.underline,
                   )),
