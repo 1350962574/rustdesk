@@ -47,7 +47,7 @@ class ConnectStatus: Reactor.Component {
         }
         if (!handler.using_public_server()) return translate('Ready');
         return <span>{translate("Ready")}, <span .link #setup-server>{translate("setup_server_tip")}</span></span>;
-        // 去掉 setup_server_tip，只保留 Ready
+        
     }
 
     event click $(#start-service) () {
