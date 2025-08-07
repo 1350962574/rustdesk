@@ -1184,6 +1184,9 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   permEnabled && !locked),
             // if (usePassword)
             //   hide_cm(!locked).marginOnly(left: _kContentHSubMargin - 6),
+            if (usePassword)
+              // 让“Hide connection management window”始终显示并可用
+              hide_cm(!locked).marginOnly(left: _kContentHSubMargin - 6),
             if (usePassword) radios[2],
           ]);
         })));
@@ -1352,6 +1355,8 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
   }
 
   Widget hide_cm(bool enabled) {
+    // 原有逻辑已注释，始终显示并可用
+    /*
     return ChangeNotifierProvider.value(
         value: gFFI.serverModel,
         child: Consumer<ServerModel>(builder: (context, model, child) {
@@ -1383,6 +1388,39 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                         style: TextStyle(
                             color: disabledTextColor(
                                 context, enabled && enableHideCm)),
+                      ),
+                    ),
+                  ],
+                ),
+              ));
+        }));
+    */
+    // 新逻辑：始终显示并可用
+    return ChangeNotifierProvider.value(
+        value: gFFI.serverModel,
+        child: Consumer<ServerModel>(builder: (context, model, child) {
+          void onHideCmChanged(bool? b) {
+            if (b != null) {
+              bind.mainSetOption(
+                  key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
+              model.hideCm = b;
+            }
+          }
+          return Tooltip(
+              message: '',
+              child: GestureDetector(
+                onTap: () => onHideCmChanged(!model.hideCm),
+                child: Row(
+                  children: [
+                    Checkbox(
+                            value: model.hideCm,
+                            onChanged: enabled ? onHideCmChanged : null)
+                        .marginOnly(right: 5),
+                    Expanded(
+                      child: Text(
+                        translate('Hide connection management window'),
+                        style: TextStyle(
+                            color: disabledTextColor(context, enabled)),
                       ),
                     ),
                   ],
