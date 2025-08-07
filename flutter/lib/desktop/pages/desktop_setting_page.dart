@@ -1398,11 +1398,17 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
     return ChangeNotifierProvider.value(
         value: gFFI.serverModel,
         child: Consumer<ServerModel>(builder: (context, model, child) {
-          void onHideCmChanged(bool? b) {
+          void onHideCmChanged(bool? b) async {
             if (b != null) {
-              bind.mainSetOption(
+              await bind.mainSetOption(
                   key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
               // 状态由 ServerModel.updatePasswordModel 自动同步
+              // 立即生效：调用窗口显示/隐藏
+              if (b) {
+                await hideCmWindow();
+              } else {
+                await showCmWindow();
+              }
             }
           }
           return Tooltip(
