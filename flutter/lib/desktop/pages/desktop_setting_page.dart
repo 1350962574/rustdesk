@@ -1401,16 +1401,30 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
         child: Consumer<ServerModel>(builder: (context, model, child) {
           void onHideCmChanged(bool? b) async {
             if (b != null) {
+              // 1. 设置allow-hide-cm配置项 (给UI读取)
               await bind.mainSetOption(
                   key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
-              // 直接修改系统隐藏CM窗口的标志，不使用cmSetConfig
-              // 状态由 ServerModel.updatePasswordModel 自动同步
-              // 立即生效：调用窗口显示/隐藏
-              if (b) {
-                await hideCmWindow();
-              } else {
-                await showCmWindow();
+                  
+              // 2. 同时设置hide_cm配置项 (给CM启动时读取)
+              await bind.mainSetOption(
+                  key: 'hide_cm', value: b ? 'true' : 'false');
+                  
+              // 3. 更新内存中的状态
+              model.hideCm = b;
+              
+              // 4. 立即应用窗口显示/隐藏状态
+              try {
+                if (b) {
+                  await hideCmWindow();
+                } else {
+                  await showCmWindow();
+                }
+              } catch (e) {
+                debugPrint('应用窗口状态时出错: $e');
               }
+              
+              // 5. 通知UI刷新
+              model.notifyListeners();
             }
           }
           return Tooltip(
