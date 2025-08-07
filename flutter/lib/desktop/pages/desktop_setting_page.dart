@@ -1403,6 +1403,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
             if (b != null) {
               await bind.mainSetOption(
                   key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
+              await bind.cmSetConfig(name: 'hide_cm', value: b ? 'true' : 'false');
               // 状态由 ServerModel.updatePasswordModel 自动同步
               // 立即生效：调用窗口显示/隐藏
               if (b) {
