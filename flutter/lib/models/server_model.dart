@@ -278,19 +278,13 @@ class ServerModel with ChangeNotifier {
       _allowNumericOneTimePassword = numericOneTimePassword;
       update = true;
     }
-    /*
-    if (_hideCm != hideCm) {
-      _hideCm = hideCm;
-      if (desktopType == DesktopType.cm) {
-        if (hideCm) {
-          await hideCmWindow();
-        } else {
-          await showCmWindow();
-        }
-      }
+    // 保持 hideCm 状态和配置同步
+    var hideCmValue = option2bool(
+        'allow-hide-cm', await bind.mainGetOption(key: 'allow-hide-cm'));
+    if (hideCm != hideCmValue) {
+      hideCm = hideCmValue;
       update = true;
     }
-    */
     if (update) {
       notifyListeners();
     }

@@ -1402,7 +1402,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
             if (b != null) {
               bind.mainSetOption(
                   key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
-              model.hideCm = b;
+              // 状态由 ServerModel.updatePasswordModel 自动同步
             }
           }
           return Tooltip(
