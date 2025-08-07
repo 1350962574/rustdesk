@@ -571,8 +571,13 @@ class ServerModel with ChangeNotifier {
         _clients.removeAt(index_disconnected);
         tabController.remove(index_disconnected);
       }
-      if (desktopType == DesktopType.cm && !hideCm) {
-        showCmWindow();
+      // 如果设置了隐藏CM窗口，则不显示窗口；否则显示窗口
+      if (desktopType == DesktopType.cm) {
+        if (hideCm) {
+          hideCmWindow();
+        } else {
+          showCmWindow();
+        }
       }
       scrollToBottom();
       notifyListeners();
@@ -590,12 +595,14 @@ class ServerModel with ChangeNotifier {
         closable: false,
         onTap: () {},
         page: desktop.buildConnectionCard(client)));
+    // 仅在CM不隐藏时置顶窗口
     Future.delayed(Duration.zero, () async {
       if (!hideCm) windowOnTop(null);
     });
     // Only do the hidden task when on Desktop.
     if (client.authorized && isDesktop) {
       cmHiddenTimer = Timer(const Duration(seconds: 3), () {
+        // 仅在未设置隐藏CM时最小化窗口
         if (!hideCm) windowManager.minimize();
         cmHiddenTimer = null;
       });
