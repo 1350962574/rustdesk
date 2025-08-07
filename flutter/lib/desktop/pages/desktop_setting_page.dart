@@ -1337,8 +1337,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   Expanded(
                       child: Text(
                     translate('Use IP Whitelisting'),
-                    style:
-                        TextStyle(color: disabledTextColor(context, enabled)),
+                    style: TextStyle(color: disabledTextColor(context, enabled)),
                   ))
                 ],
               )),
@@ -1395,7 +1394,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
               ));
         }));
     */
-    // 新逻辑：始终显示并可用
+    // 新逻辑：始终显示并可选
     return ChangeNotifierProvider.value(
         value: gFFI.serverModel,
         child: Consumer<ServerModel>(builder: (context, model, child) {
@@ -1414,13 +1413,14 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   children: [
                     Checkbox(
                             value: model.hideCm,
-                            onChanged: enabled ? onHideCmChanged : null)
+                            onChanged: onHideCmChanged // 关键：始终可选
+                            )
                         .marginOnly(right: 5),
                     Expanded(
                       child: Text(
                         translate('Hide connection management window'),
                         style: TextStyle(
-                            color: disabledTextColor(context, enabled)),
+                            color: disabledTextColor(context, true)),
                       ),
                     ),
                   ],
