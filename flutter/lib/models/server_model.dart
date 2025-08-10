@@ -162,6 +162,7 @@ class ServerModel with ChangeNotifier {
           updateClientState(res);
         } else {
           if (_clients.isEmpty) {
+            // 总是隐藏空窗口
             hideCmWindow();
             if (_zeroClientLengthCounter++ == 12) {
               // 6 second
@@ -169,7 +170,12 @@ class ServerModel with ChangeNotifier {
             }
           } else {
             _zeroClientLengthCounter = 0;
-            if (!hideCm) showCmWindow();
+            // 确保根据hideCm设置决定是否显示窗口
+            if (hideCm) {
+              hideCmWindow(); // 如果设置了隐藏，保持窗口隐藏
+            } else {
+              showCmWindow(); // 否则显示窗口
+            }
           }
         }
       }
