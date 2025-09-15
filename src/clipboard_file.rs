@@ -143,12 +143,33 @@ pub fn clip_2_msg(clip: ClipboardFile) -> Message {
             })),
             ..Default::default()
         },
-        ClipboardFile::Files { files: _ } => {
-            // File transfer functionality has been removed from upstream protocol
-            // Return an empty message as this feature is no longer supported
+        ClipboardFile::Files { files } => {
+            let files = files
+                .iter()
+                .filter_map(|(f, s)| {
+                    if *s == 0 {
+                        if let Ok(meta) = std::fs::metadata(f) {
+                            Some(CliprdrFile {
+                                name: f.to_owned(),
+                                size: meta.len(),
+                                ..Default::default()
+                            })
+                        } else {
+                            None
+                        }
+                    } else {
+                        Some(CliprdrFile {
+                            name: f.to_owned(),
+                            size: *s,
+                            ..Default::default()
+                        })
+                    }
+                })
+                .collect::<Vec<_>>();
             Message {
                 union: Some(message::Union::Cliprdr(Cliprdr {
-                    union: Some(cliprdr::Union::TryEmpty(CliprdrTryEmpty {
+                    union: Some(cliprdr::Union::Files(CliprdrFiles {
+                        files,
                         ..Default::default()
                     })),
                     ..Default::default()
