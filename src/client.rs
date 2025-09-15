@@ -2138,13 +2138,10 @@ impl LoginConfigHandler {
                 // }
             }
         } else if name == "show-my-cursor" {
-            // config.show_my_cursor.v = !config.show_my_cursor.v;  // Field removed
-            // option.show_my_cursor = if config.show_my_cursor.v {
-                BoolOption::Yes
-            } else {
-                BoolOption::No
-            }
-            .into();
+            // show_my_cursor field has been removed from protocol, this option is no longer supported
+            // Simply return without making any changes
+            self.save_config(config);
+            return None;
         } else {
             let is_set = self
                 .options
