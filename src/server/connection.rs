@@ -3702,50 +3702,6 @@ impl Connection {
                 self.update_terminal_persistence(q == BoolOption::Yes).await;
             }
         }
-        #[cfg(not(any(target_os = "android", target_os = "ios")))]
-        // if let Ok(q) = o.show_my_cursor.enum_value() {  // Field removed
-            if q != BoolOption::NotSet {
-                use crate::whiteboard;
-                self.show_my_cursor = q == BoolOption::Yes;
-                #[cfg(target_os = "windows")]
-                let is_lower_win10 = !crate::platform::windows::is_win_10_or_greater();
-                #[cfg(not(target_os = "windows"))]
-                let is_lower_win10 = false;
-                #[cfg(target_os = "linux")]
-                let is_linux_supported = crate::whiteboard::is_supported();
-                #[cfg(not(target_os = "linux"))]
-                let is_linux_supported = false;
-                let not_support_msg = if is_lower_win10 {
-                    "Windows 10 or greater is required."
-                } else if cfg!(target_os = "linux") && !is_linux_supported {
-                    "This feature is not supported on native Wayland, please install XWayland or switch to X11."
-                } else {
-                    ""
-                };
-                if q == BoolOption::Yes {
-                    if not_support_msg.is_empty() {
-                        whiteboard::register_whiteboard(whiteboard::get_key_cursor(self.inner.id));
-                    } else {
-                        let mut msg_out = Message::new();
-                        let res = MessageBox {
-                            msgtype: "nook-nocancel-hasclose".to_owned(),
-                            title: "Show my cursor".to_owned(),
-                            text: not_support_msg.to_owned(),
-                            link: "".to_owned(),
-                            ..Default::default()
-                        };
-                        msg_out.set_message_box(res);
-                        self.send(msg_out).await;
-                    }
-                } else {
-                    if not_support_msg.is_empty() {
-                        whiteboard::unregister_whiteboard(whiteboard::get_key_cursor(
-                            self.inner.id,
-                        ));
-                    }
-                }
-            }
-        }
     }
 
     async fn turn_on_privacy(&mut self, impl_key: String) {
