@@ -2540,18 +2540,7 @@ impl Connection {
                 }
                 #[cfg(any(target_os = "windows", feature = "unix-file-copy-paste"))]
                 Some(message::Union::Cliprdr(clip)) => {
-                    // File transfer functionality has been removed from upstream protocol
-                    // Handle only basic clipboard operations
-                    if clip.union.is_some() {
-                        self.handle_clipboard_msg(clip);
-                    }
-                }
-                                .iter()
-                                .map(|f| (f.name.clone(), f.size as i64))
-                                .collect::<Vec<(String, i64)>>(),
-                            json!({}),
-                        );
-                    } else if let Some(clip) = msg_2_clip(clip) {
+                    if let Some(clip) = msg_2_clip(clip) {
                         #[cfg(target_os = "windows")]
                         {
                             self.send_to_cm(ipc::Data::ClipboardFile(clip));
@@ -2590,8 +2579,6 @@ impl Connection {
                             }
 
                             for msg in out_msgs.into_iter() {
-                                // File transfer functionality has been removed from upstream protocol
-                                // Skip any FileList related processing
                                 self.send(msg).await;
                             }
                         }
