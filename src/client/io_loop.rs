@@ -783,8 +783,7 @@ impl<T: InvokeUiSession> Remote<T> {
                                 Some(file_transfer_send_confirm_request::Union::Skip(true))
                             },
                             ..Default::default()
-                        })
-                        .await;
+                        });
                     }
                 } else {
                     if let Some(job) = fs::get_job(id, &mut self.write_jobs) {
@@ -1555,7 +1554,6 @@ impl<T: InvokeUiSession> Remote<T> {
                                                             job.default_overwrite_strategy();
                                                         let mut offset = 0;
                                                         if digest.is_identical {  // && job.is_resume removed
-                                                        {
                                                             overwrite_strategy = Some(true);
                                                             // offset = digest.transferred_size as _;  // Field removed
                                                         }
@@ -1576,6 +1574,7 @@ impl<T: InvokeUiSession> Remote<T> {
                                                             let msg = new_send_confirm(req);
                                                             allow_err!(peer.send(&msg).await);
                                                         } else {
+                                                            let write_path = get_string(&fs::TransferJob::join(p, &file.name));
                                                             self.handler.override_file_confirm(
                                                                 digest.id,
                                                                 digest.file_num,

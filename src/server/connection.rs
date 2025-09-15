@@ -2540,12 +2540,12 @@ impl Connection {
                 }
                 #[cfg(any(target_os = "windows", feature = "unix-file-copy-paste"))]
                 Some(message::Union::Cliprdr(clip)) => {
-                    if let Some(cliprdr::Union::FileList(files)) = &clip.union {
-                        self.post_file_audit(
-                            FileAuditType::RemoteReceive,
-                            "",
-                            files
-                                .files
+                    // File transfer functionality has been removed from upstream protocol
+                    // Handle only basic clipboard operations
+                    if clip.union.is_some() {
+                        self.handle_clipboard_msg(clip);
+                    }
+                }
                                 .iter()
                                 .map(|f| (f.name.clone(), f.size as i64))
                                 .collect::<Vec<(String, i64)>>(),
@@ -2590,23 +2590,8 @@ impl Connection {
                             }
 
                             for msg in out_msgs.into_iter() {
-                                if let Some(message::Union::Cliprdr(cliprdr)) = msg.union.as_ref() {
-                                    if let Some(cliprdr::Union::FileList(files)) =
-                                        cliprdr.union.as_ref()
-                                    {
-                                        self.post_file_audit(
-                                            FileAuditType::RemoteSend,
-                                            "",
-                                            files
-                                                .files
-                                                .iter()
-                                                .map(|f| (f.name.clone(), f.size as i64))
-                                                .collect::<Vec<(String, i64)>>(),
-                                            json!({}),
-                                        );
-                                        continue;
-                                    }
-                                }
+                                // File transfer functionality has been removed from upstream protocol
+                                // Skip any FileList related processing
                                 self.send(msg).await;
                             }
                         }
@@ -2857,8 +2842,8 @@ impl Connection {
                         file_num: d.file_num,
                         file_size: d.file_size,
                         last_modified: d.last_modified,
-                        is_upload: true,
-                        // is_resume: d.is_resume,  // Field removed
+                        is_upload: d.is_upload,
+                        // is_resume field has been removed from protocol
                     }),
                     Some(file_response::Union::Error(e)) => {
                         self.send_fs(ipc::FS::WriteError {
