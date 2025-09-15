@@ -2132,14 +2132,14 @@ impl LoginConfigHandler {
                 option.show_remote_cursor = f(self.get_toggle_option("show-remote-cursor"));
                 option.enable_file_transfer = f(self.config.enable_file_copy_paste.v);
                 option.lock_after_session_end = f(self.config.lock_after_session_end.v);
-                if config.show_my_cursor.v {
-                    config.show_my_cursor.v = false;
-                    option.show_my_cursor = BoolOption::No.into();
-                }
+                // if config.show_my_cursor.v {  // Field removed
+                //     config.show_my_cursor.v = false;
+                //     option.show_my_cursor = BoolOption::No.into();
+                // }
             }
         } else if name == "show-my-cursor" {
-            config.show_my_cursor.v = !config.show_my_cursor.v;
-            option.show_my_cursor = if config.show_my_cursor.v {
+            // config.show_my_cursor.v = !config.show_my_cursor.v;  // Field removed
+            // option.show_my_cursor = if config.show_my_cursor.v {
                 BoolOption::Yes
             } else {
                 BoolOption::No
@@ -2238,7 +2238,7 @@ impl LoginConfigHandler {
             msg.show_remote_cursor = BoolOption::Yes.into();
         }
         if view_only && self.get_toggle_option("show-my-cursor") {
-            msg.show_my_cursor = BoolOption::Yes.into();
+            // msg.show_my_cursor = BoolOption::Yes.into();  // Field removed
         }
         if self.get_toggle_option("follow-remote-cursor") {
             msg.follow_remote_cursor = BoolOption::Yes.into();
@@ -2325,7 +2325,8 @@ impl LoginConfigHandler {
         } else if name == "view-only" {
             self.config.view_only.v
         } else if name == "show-my-cursor" {
-            self.config.show_my_cursor.v
+            // self.config.show_my_cursor.v  // Field removed
+            false
         } else if name == "follow-remote-cursor" {
             self.config.follow_remote_cursor.v
         } else if name == "follow-remote-window" {

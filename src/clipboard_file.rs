@@ -149,7 +149,7 @@ pub fn clip_2_msg(clip: ClipboardFile) -> Message {
                 .filter_map(|(f, s)| {
                     if *s == 0 {
                         if let Ok(meta) = std::fs::metadata(f) {
-                            Some(CliprdrFile {
+                            Some(CliprdrServerFileList {
                                 name: f.to_owned(),
                                 size: meta.len(),
                                 ..Default::default()
@@ -158,7 +158,7 @@ pub fn clip_2_msg(clip: ClipboardFile) -> Message {
                             None
                         }
                     } else {
-                        Some(CliprdrFile {
+                        Some(CliprdrServerFileList {
                             name: f.to_owned(),
                             size: *s,
                             ..Default::default()
@@ -168,7 +168,7 @@ pub fn clip_2_msg(clip: ClipboardFile) -> Message {
                 .collect::<Vec<_>>();
             Message {
                 union: Some(message::Union::Cliprdr(Cliprdr {
-                    union: Some(cliprdr::Union::Files(CliprdrFiles {
+                    union: Some(cliprdr::Union::FileList(CliprdrServerFileList {
                         files,
                         ..Default::default()
                     })),

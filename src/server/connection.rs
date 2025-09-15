@@ -2540,7 +2540,7 @@ impl Connection {
                 }
                 #[cfg(any(target_os = "windows", feature = "unix-file-copy-paste"))]
                 Some(message::Union::Cliprdr(clip)) => {
-                    if let Some(cliprdr::Union::Files(files)) = &clip.union {
+                    if let Some(cliprdr::Union::FileList(files)) = &clip.union {
                         self.post_file_audit(
                             FileAuditType::RemoteReceive,
                             "",
@@ -2591,7 +2591,7 @@ impl Connection {
 
                             for msg in out_msgs.into_iter() {
                                 if let Some(message::Union::Cliprdr(cliprdr)) = msg.union.as_ref() {
-                                    if let Some(cliprdr::Union::Files(files)) =
+                                    if let Some(cliprdr::Union::FileList(files)) =
                                         cliprdr.union.as_ref()
                                     {
                                         self.post_file_audit(
@@ -2810,7 +2810,7 @@ impl Connection {
                             }
                             Some(file_action::Union::SendConfirm(r)) => {
                                 if let Some(job) = fs::get_job(r.id, &mut self.read_jobs) {
-                                    job.confirm(&r).await;
+                                    job.confirm(&r);
                                 } else {
                                     if let Ok(sc) = r.write_to_bytes() {
                                         self.send_fs(ipc::FS::SendConfirm(sc));
@@ -2858,7 +2858,7 @@ impl Connection {
                         file_size: d.file_size,
                         last_modified: d.last_modified,
                         is_upload: true,
-                        is_resume: d.is_resume,
+                        // is_resume: d.is_resume,  // Field removed
                     }),
                     Some(file_response::Union::Error(e)) => {
                         self.send_fs(ipc::FS::WriteError {
@@ -3703,7 +3703,7 @@ impl Connection {
             }
         }
         #[cfg(not(any(target_os = "android", target_os = "ios")))]
-        if let Ok(q) = o.show_my_cursor.enum_value() {
+        // if let Ok(q) = o.show_my_cursor.enum_value() {  // Field removed
             if q != BoolOption::NotSet {
                 use crate::whiteboard;
                 self.show_my_cursor = q == BoolOption::Yes;
