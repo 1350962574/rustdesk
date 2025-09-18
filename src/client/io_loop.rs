@@ -1484,7 +1484,7 @@ impl<T: InvokeUiSession> Remote<T> {
                                                 get_string(&fs::TransferJob::join(p, &file.name));
                                             let mut overwrite_strategy =
                                                 job.default_overwrite_strategy();
-                                            let mut offset = 0;
+                                            let offset = 0;
                                             if digest.is_identical {
                                                 // Always use overwrite strategy when identical
                                                 overwrite_strategy = Some(true);
@@ -1525,7 +1525,7 @@ impl<T: InvokeUiSession> Remote<T> {
                                                 get_string(&fs::TransferJob::join(p, &file.name));
                                             // Remove set_digest call as it doesn't exist
                                             let peer_ver = self.handler.lc.read().unwrap().version;
-                                            let is_support_resume =
+                                            let _is_support_resume =
                                                 crate::is_support_file_transfer_resume_num(
                                                     peer_ver,
                                                 );
@@ -1548,7 +1548,7 @@ impl<T: InvokeUiSession> Remote<T> {
                                                     DigestCheckResult::NeedConfirm(digest) => {
                                                         let mut overwrite_strategy =
                                                             job.default_overwrite_strategy();
-                                                        let mut offset = 0;
+                                                        let offset = 0;
                                                         if digest.is_identical
                                                         {
                                                             overwrite_strategy = Some(true);

@@ -861,7 +861,7 @@ async fn handle_fs(
             file_size,
             last_modified,
             is_upload,
-            is_resume,
+            is_resume: _,
         } => {
             if let Some(job) = fs::get_job(id, write_jobs) {
                 let mut req = FileTransferSendConfirmRequest {

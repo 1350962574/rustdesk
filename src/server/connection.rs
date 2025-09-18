@@ -234,9 +234,7 @@ pub struct Connection {
     // by peer
     disable_keyboard: bool,
     // by peer
-    #[cfg(not(any(target_os = "android", target_os = "ios")))]
-    show_remote_cursor: bool,
-    // by peer
+
     disable_clipboard: bool,
     // by peer
     disable_audio: bool,
@@ -416,8 +414,7 @@ impl Connection {
             enable_file_transfer: false,
             disable_clipboard: false,
             disable_keyboard: false,
-            #[cfg(not(any(target_os = "android", target_os = "ios")))]
-            show_remote_cursor: false,
+
             tx_input,
             video_ack_required: false,
             server_audit_conn: "".to_owned(),
@@ -2540,18 +2537,9 @@ impl Connection {
                 }
                 #[cfg(any(target_os = "windows", feature = "unix-file-copy-paste"))]
                 Some(message::Union::Cliprdr(clip)) => {
-                    if let Some(cliprdr::Union::Files(files)) = &clip.union {
-                        self.post_file_audit(
-                            FileAuditType::RemoteReceive,
-                            "",
-                            files
-                                .files
-                                .iter()
-                                .map(|f| (f.name.clone(), f.size as i64))
-                                .collect::<Vec<(String, i64)>>(),
-                            json!({}),
-                        );
-                    } else if let Some(clip) = msg_2_clip(clip) {
+                    // Files are now handled through FormatDataResponse, not as separate Files messages
+                    // Skip the old Files handling logic
+                    if let Some(clip) = msg_2_clip(clip) {
                         #[cfg(target_os = "windows")]
                         {
                             self.send_to_cm(ipc::Data::ClipboardFile(clip));
@@ -2590,23 +2578,7 @@ impl Connection {
                             }
 
                             for msg in out_msgs.into_iter() {
-                                if let Some(message::Union::Cliprdr(cliprdr)) = msg.union.as_ref() {
-                                    if let Some(cliprdr::Union::Files(files)) =
-                                        cliprdr.union.as_ref()
-                                    {
-                                        self.post_file_audit(
-                                            FileAuditType::RemoteSend,
-                                            "",
-                                            files
-                                                .files
-                                                .iter()
-                                                .map(|f| (f.name.clone(), f.size as i64))
-                                                .collect::<Vec<(String, i64)>>(),
-                                            json!({}),
-                                        );
-                                        continue;
-                                    }
-                                }
+                                // Skip file audit for now as Files union no longer exists
                                 self.send(msg).await;
                             }
                         }
@@ -2858,7 +2830,7 @@ impl Connection {
                         file_size: d.file_size,
                         last_modified: d.last_modified,
                         is_upload: true,
-                        // is_resume field no longer exists
+                        is_resume: false, // Default to false since is_resume field was removed from digest
                     }),
                     Some(file_response::Union::Error(e)) => {
                         self.send_fs(ipc::FS::WriteError {
