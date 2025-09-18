@@ -187,6 +187,8 @@ jobs:
           rustc -V
 
       - name: Build rustdesk
+        env:
+          RENDEZVOUS_SERVER: ${{ secrets.RENDEZVOUS_SERVER }}
         run: |
           ./build.py --flutter ${{ matrix.job.extra-build-args }}
 

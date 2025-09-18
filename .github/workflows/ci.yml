@@ -161,6 +161,8 @@ jobs:
     - uses: Swatinem/rust-cache@v2
 
     - name: Build
+      env:
+        RENDEZVOUS_SERVER: ${{ secrets.RENDEZVOUS_SERVER }}
       uses: actions-rs/cargo@v1
       with:
         use-cross: ${{ matrix.job.use-cross }}

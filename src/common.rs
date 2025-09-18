@@ -1489,8 +1489,27 @@ pub fn create_symmetric_key_msg(their_pk_b: [u8; 32]) -> (Bytes, Bytes, secretbo
 
 #[inline]
 pub fn using_public_server() -> bool {
-    option_env!("RENDEZVOUS_SERVER").unwrap_or("").is_empty()
-        && crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()
+    // 检查是否使用编译时环境变量指定的服务器
+    if !option_env!("RENDEZVOUS_SERVER").unwrap_or("").is_empty() {
+        return false;
+    }
+    
+    // 检查是否有用户配置的自定义服务器
+    if !crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty() {
+        return false;
+    }
+    
+    // 检查当前实际使用的服务器是否为内置的自定义服务器
+    let current_server = Config::get_rendezvous_server();
+    
+    // 如果使用的是内置的自定义服务器（如 rustdesk.htlss.cn），不应视为公共服务器
+    for builtin_server in config::RENDEZVOUS_SERVERS {
+        if current_server.contains(builtin_server) && !is_public(builtin_server) {
+            return false;
+        }
+    }
+    
+    true
 }
 
 pub struct ThrottledInterval {
