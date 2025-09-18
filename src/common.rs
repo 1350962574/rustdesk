@@ -1029,7 +1029,8 @@ fn get_api_server_(api: String, custom: String) -> String {
 
 #[inline]
 pub fn is_public(url: &str) -> bool {
-    url.contains("rustdesk.htlss.cn")
+    // 自定义服务器不被认为是公共服务器，这样可以显示完整的选项（包括帧率）
+    false
 }
 
 pub fn get_udp_punch_enabled() -> bool {
