@@ -235,7 +235,7 @@ pub struct Connection {
     disable_keyboard: bool,
     // by peer
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
-    show_my_cursor: bool,
+    show_remote_cursor: bool,
     // by peer
     disable_clipboard: bool,
     // by peer
@@ -417,7 +417,7 @@ impl Connection {
             disable_clipboard: false,
             disable_keyboard: false,
             #[cfg(not(any(target_os = "android", target_os = "ios")))]
-            show_my_cursor: false,
+            show_remote_cursor: false,
             tx_input,
             video_ack_required: false,
             server_audit_conn: "".to_owned(),
@@ -2329,9 +2329,9 @@ impl Connection {
                             self.lr.my_name.clone(),
                             self.peer_argb,
                             true,
-                            self.show_my_cursor,
+                            self.show_remote_cursor,
                         );
-                    } else if self.show_my_cursor {
+                    } else if self.show_remote_cursor {
                         #[cfg(target_os = "macos")]
                         self.retina.on_mouse_event(&mut me, self.display_idx);
                         self.input_mouse(
@@ -2810,7 +2810,7 @@ impl Connection {
                             }
                             Some(file_action::Union::SendConfirm(r)) => {
                                 if let Some(job) = fs::get_job(r.id, &mut self.read_jobs) {
-                                    job.confirm(&r).await;
+                                    job.confirm(&r);
                                 } else {
                                     if let Ok(sc) = r.write_to_bytes() {
                                         self.send_fs(ipc::FS::SendConfirm(sc));
@@ -2858,7 +2858,7 @@ impl Connection {
                         file_size: d.file_size,
                         last_modified: d.last_modified,
                         is_upload: true,
-                        is_resume: d.is_resume,
+                        // is_resume field no longer exists
                     }),
                     Some(file_response::Union::Error(e)) => {
                         self.send_fs(ipc::FS::WriteError {
@@ -3703,10 +3703,10 @@ impl Connection {
             }
         }
         #[cfg(not(any(target_os = "android", target_os = "ios")))]
-        if let Ok(q) = o.show_my_cursor.enum_value() {
+        if let Ok(q) = o.show_remote_cursor.enum_value() {
             if q != BoolOption::NotSet {
                 use crate::whiteboard;
-                self.show_my_cursor = q == BoolOption::Yes;
+                self.show_remote_cursor = q == BoolOption::Yes;
                 #[cfg(target_os = "windows")]
                 let is_lower_win10 = !crate::platform::windows::is_win_10_or_greater();
                 #[cfg(not(target_os = "windows"))]

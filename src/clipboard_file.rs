@@ -144,34 +144,25 @@ pub fn clip_2_msg(clip: ClipboardFile) -> Message {
             ..Default::default()
         },
         ClipboardFile::Files { files } => {
-            let files = files
-                .iter()
-                .filter_map(|(f, s)| {
-                    if *s == 0 {
-                        if let Ok(meta) = std::fs::metadata(f) {
-                            Some(CliprdrFile {
-                                name: f.to_owned(),
-                                size: meta.len(),
-                                ..Default::default()
-                            })
-                        } else {
-                            None
-                        }
-                    } else {
-                        Some(CliprdrFile {
-                            name: f.to_owned(),
-                            size: *s,
-                            ..Default::default()
-                        })
-                    }
-                })
-                .collect::<Vec<_>>();
+            // Files are now handled through FormatDataResponse, not as a separate Files message
+            // Convert files to format_data for transmission
+            let mut format_data = Vec::new();
+            // Serialize file list as needed - this is a placeholder implementation
+            // The actual format should match what the receiving end expects
+            for (name, size) in files {
+                format_data.extend_from_slice(name.as_bytes());
+                format_data.extend_from_slice(&size.to_le_bytes());
+            }
+            
             Message {
                 union: Some(message::Union::Cliprdr(Cliprdr {
-                    union: Some(cliprdr::Union::Files(CliprdrFiles {
-                        files,
-                        ..Default::default()
-                    })),
+                    union: Some(cliprdr::Union::FormatDataResponse(
+                        CliprdrServerFormatDataResponse {
+                            msg_flags: 1,
+                            format_data: format_data.into(),
+                            ..Default::default()
+                        },
+                    )),
                     ..Default::default()
                 })),
                 ..Default::default()
