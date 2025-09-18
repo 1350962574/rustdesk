@@ -1510,15 +1510,11 @@ pub fn using_public_server() -> bool {
     let current_server = Config::get_rendezvous_server();
     log::info!("using_public_server check: current_server={}", current_server);
     
-    // 如果使用的是内置的自定义服务器（如 rustdesk.htlss.cn），不应视为公共服务器
+    // 如果使用的是内置的自定义服务器（如 rustdesk.htlss.cn），应视为自定义服务器，不是公共服务器
     for builtin_server in config::RENDEZVOUS_SERVERS {
         if current_server.contains(builtin_server) {
-            let is_pub = is_public(builtin_server);
-            log::info!("using_public_server check: builtin_server={}, is_public={}", builtin_server, is_pub);
-            if !is_pub {
-                log::info!("using_public_server: false (内置自定义服务器: {})", builtin_server);
-                return false;
-            }
+            log::info!("using_public_server: false (使用内置自定义服务器: {})", builtin_server);
+            return false;
         }
     }
     
