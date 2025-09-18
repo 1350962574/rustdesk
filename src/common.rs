@@ -1489,26 +1489,40 @@ pub fn create_symmetric_key_msg(their_pk_b: [u8; 32]) -> (Bytes, Bytes, secretbo
 
 #[inline]
 pub fn using_public_server() -> bool {
+    // 调试：记录环境变量值
+    let env_server = option_env!("RENDEZVOUS_SERVER").unwrap_or("");
+    log::info!("using_public_server check: RENDEZVOUS_SERVER={}", env_server);
+    
     // 检查是否使用编译时环境变量指定的服务器
-    if !option_env!("RENDEZVOUS_SERVER").unwrap_or("").is_empty() {
+    if !env_server.is_empty() {
+        log::info!("using_public_server: false (编译时环境变量不为空: {})", env_server);
         return false;
     }
     
     // 检查是否有用户配置的自定义服务器
-    if !crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty() {
+    let custom_server = crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server"));
+    if !custom_server.is_empty() {
+        log::info!("using_public_server: false (用户配置的自定义服务器: {})", custom_server);
         return false;
     }
     
     // 检查当前实际使用的服务器是否为内置的自定义服务器
     let current_server = Config::get_rendezvous_server();
+    log::info!("using_public_server check: current_server={}", current_server);
     
     // 如果使用的是内置的自定义服务器（如 rustdesk.htlss.cn），不应视为公共服务器
     for builtin_server in config::RENDEZVOUS_SERVERS {
-        if current_server.contains(builtin_server) && !is_public(builtin_server) {
-            return false;
+        if current_server.contains(builtin_server) {
+            let is_pub = is_public(builtin_server);
+            log::info!("using_public_server check: builtin_server={}, is_public={}", builtin_server, is_pub);
+            if !is_pub {
+                log::info!("using_public_server: false (内置自定义服务器: {})", builtin_server);
+                return false;
+            }
         }
     }
     
+    log::info!("using_public_server: true (默认使用公共服务器)");
     true
 }
 
