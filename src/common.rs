@@ -1008,8 +1008,9 @@ fn get_api_server_(api: String, custom: String) -> String {
 }
 
 #[inline]
-pub fn is_public(url: &str) -> bool {
-    url.contains("rustdesk.htlss.cn")
+pub fn using_public_server() -> bool {
+    // 直接返回 false，确保帧率选项始终显示
+    false
 }
 
 pub fn get_udp_punch_enabled() -> bool {
