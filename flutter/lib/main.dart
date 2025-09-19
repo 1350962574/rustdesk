@@ -293,7 +293,11 @@ void runConnectionManagerScreen() async {
     const DesktopServerPage(),
     MyTheme.currentThemeMode(),
   );
-  final hide = await bind.cmGetConfig(name: "hide_cm") == 'true';
+  // 强制设置CM窗口为隐藏状态
+  final hideCm = true;
+  final allowHideCm = true;
+  final hide = true;
+  debugPrint("CM窗口启动状态: hide_cm=$hideCm, allow-hide-cm=$allowHideCm, 最终hide=$hide");
   gFFI.serverModel.hideCm = hide;
   if (hide) {
     await hideCmWindow(isStartup: true);

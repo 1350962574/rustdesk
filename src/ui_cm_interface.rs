@@ -861,7 +861,7 @@ async fn handle_fs(
             file_size,
             last_modified,
             is_upload,
-            is_resume,
+            is_resume: _,
         } => {
             if let Some(job) = fs::get_job(id, write_jobs) {
                 let mut req = FileTransferSendConfirmRequest {
@@ -880,9 +880,9 @@ async fn handle_fs(
                 if let Some(file) = job.files().get(file_num as usize) {
                     if let fs::DataSource::FilePath(p) = &job.data_source {
                         let path = get_string(&fs::TransferJob::join(p, &file.name));
-                        match is_write_need_confirmation(is_resume, &path, &digest) {
+                        match is_write_need_confirmation(&path, &digest) {
                             Ok(digest_result) => {
-                                job.set_digest(file_size, last_modified);
+                                // set_digest method no longer exists
                                 match digest_result {
                                     DigestCheckResult::IsSame => {
                                         req.set_skip(true);
@@ -915,7 +915,7 @@ async fn handle_fs(
         ipc::FS::SendConfirm(bytes) => {
             if let Ok(r) = FileTransferSendConfirmRequest::parse_from_bytes(&bytes) {
                 if let Some(job) = fs::get_job(r.id, write_jobs) {
-                    job.confirm(&r).await;
+                    job.confirm(&r);
                 }
             }
         }

@@ -1024,12 +1024,12 @@ fn get_api_server_(api: String, custom: String) -> String {
             return format!("http://{}", s);
         }
     }
-    "https://admin.rustdesk.com".to_owned()
+    "https://rustdesk.htlss.cn".to_owned()
 }
 
 #[inline]
 pub fn is_public(url: &str) -> bool {
-    url.contains("rustdesk.com")
+    url.contains("rustdesk.htlss.cn")
 }
 
 pub fn get_udp_punch_enabled() -> bool {
@@ -1489,8 +1489,37 @@ pub fn create_symmetric_key_msg(their_pk_b: [u8; 32]) -> (Bytes, Bytes, secretbo
 
 #[inline]
 pub fn using_public_server() -> bool {
-    option_env!("RENDEZVOUS_SERVER").unwrap_or("").is_empty()
-        && crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()
+    // 调试：记录环境变量值
+    let env_server = option_env!("RENDEZVOUS_SERVER").unwrap_or("");
+    log::info!("using_public_server check: RENDEZVOUS_SERVER={}", env_server);
+    
+    // 检查是否使用编译时环境变量指定的服务器
+    if !env_server.is_empty() {
+        log::info!("using_public_server: false (编译时环境变量不为空: {})", env_server);
+        return false;
+    }
+    
+    // 检查是否有用户配置的自定义服务器
+    let custom_server = crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server"));
+    if !custom_server.is_empty() {
+        log::info!("using_public_server: false (用户配置的自定义服务器: {})", custom_server);
+        return false;
+    }
+    
+    // 检查当前实际使用的服务器是否为内置的自定义服务器
+    let current_server = Config::get_rendezvous_server();
+    log::info!("using_public_server check: current_server={}", current_server);
+    
+    // 如果使用的是内置的自定义服务器（如 rustdesk.htlss.cn），应视为自定义服务器，不是公共服务器
+    for builtin_server in config::RENDEZVOUS_SERVERS {
+        if current_server.contains(builtin_server) {
+            log::info!("using_public_server: false (使用内置自定义服务器: {})", builtin_server);
+            return false;
+        }
+    }
+    
+    log::info!("using_public_server: true (默认使用公共服务器)");
+    true
 }
 
 pub struct ThrottledInterval {
